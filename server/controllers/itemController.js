@@ -7,6 +7,11 @@ const Supplier = require('../models/Supplier');
 exports.createItem = async (req, res) => {
   const { name, inventoryLocation, brand, category, supplier, stockUnit, unitPrice, status } = req.body;
 
+  // Validate required fields
+  if (!name || !supplier || !stockUnit || !unitPrice) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
   try {
     // Check if the supplier exists
     const supplierExists = await Supplier.findById(supplier);
@@ -20,13 +25,19 @@ exports.createItem = async (req, res) => {
       return res.status(400).json({ message: 'This item already exists for the selected supplier' });
     }
 
-    // Find the last item number and auto-generate the new one
-    const lastItem = await Item.findOne().sort({ itemNo: -1 });
-    const newItemNo = lastItem ? parseInt(lastItem.itemNo, 10) + 1 : 1;
+    // Fetch all existing item numbers to determine the next available item number
+    const existingItems = await Item.find({}).select('itemNo');
+    const existingItemNos = existingItems.map(item => item.itemNo);
+    let newItemNo = 1;
 
-    // Create the new item, adding the image path from multer
+    // Find the smallest unused item number
+    while (existingItemNos.includes(newItemNo)) {
+      newItemNo++;
+    }
+
+    // Create the new item
     const newItem = new Item({
-      itemNo: newItemNo,
+      itemNo: newItemNo, // Automatically generated item number
       name,
       inventoryLocation,
       brand,
@@ -45,6 +56,7 @@ exports.createItem = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 

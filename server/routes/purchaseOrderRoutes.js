@@ -2,14 +2,14 @@
 const express = require('express');
 const router = express.Router();
 const { createPurchaseOrder, getAllPurchaseOrders ,getPurchaseOrderById,updatePurchaseOrder,deletePurchaseOrder} = require('../controllers/purchaseOrderController');
-
-router.post('/additem', createPurchaseOrder);
-router.get('/all', getAllPurchaseOrders);
-router.get('/:id', getPurchaseOrderById);
+const authMiddleware = require('../middleware/auth');
+router.post('/additem',authMiddleware, createPurchaseOrder);
+router.get('/all',authMiddleware, getAllPurchaseOrders);
+router.get('/:id',authMiddleware, getPurchaseOrderById);
 // Update Purchase Order by ID
-router.put('/:id', updatePurchaseOrder);
+router.put('/:id', authMiddleware, updatePurchaseOrder);
 
-router.delete('/:id',deletePurchaseOrder);
+router.delete('/:id',authMiddleware, deletePurchaseOrder);
 
 
 

@@ -2,7 +2,7 @@
 const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-require('dotenv').config();
+
 
 // Admin Login
 
@@ -39,11 +39,14 @@ exports.register =async (req, res) => {
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  
+  console.log(req.body, "Incoming login request");
+
   try {
+    console.log("Attempting to find admin with email:", email);
     const user = await Admin.findOne({ email });
+
     if (!user) {
-      console.log("Admin not found");
+      console.log("Admin not found for email:", email);
       return res.status(404).json({ message: 'Admin not found' });
     }
 
@@ -51,11 +54,11 @@ exports.login = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.log("Password does not match");
+      console.log("Password does not match for user:", user.email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    console.log("Password matches");
+    console.log("Password matches for user:", user.email);
 
     const token = jwt.sign(
       { id: user._id, role: user.role }, 
@@ -63,8 +66,7 @@ exports.login = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-     // Return user data and token (excluding password)
-     res.status(200).json({
+    res.status(200).json({
       message: 'Login successful',
       user: {
         _id: user._id,
@@ -72,10 +74,11 @@ exports.login = async (req, res) => {
         email: user.email,
         status: user.status,
       },
-      token, // Include the token in the response
+      token,
     });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
