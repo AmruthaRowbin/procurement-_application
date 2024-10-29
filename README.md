@@ -1,4 +1,5 @@
 Procurement Management Application
+
 This Procurement Management Application is built with Node.js (backend) and React.js (frontend) to streamline the procurement process for an organization. It features three main modules: Supplier Management, Item Management, and Purchase Order Management. These modules allow users to handle suppliers, track inventory items, and generate purchase orders.
 
 Features Overview
